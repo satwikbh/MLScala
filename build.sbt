@@ -1,10 +1,8 @@
-name := "MinLSH"
+name := "MLScala"
 
 version := "1.0"
 
 scalaVersion := "2.10.4"
-
-retrieveManaged := true
 
 // https://mvnrepository.com/artifact/org.apache.spark/spark-core_2.10
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "2.1.0"
@@ -29,3 +27,5 @@ libraryDependencies += "com.soundcloud" % "cosine-lsh-join-spark_2.10" % "1.0.1"
 
 // https://mvnrepository.com/artifact/com.invincea/spark-hash
 libraryDependencies += "com.invincea" % "spark-hash" % "0.1.3"
+
+XitrumPackage.copy()
