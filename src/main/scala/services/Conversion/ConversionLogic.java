@@ -1,4 +1,4 @@
-package services;
+package services.Conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import common.domain.*;
@@ -7,10 +7,7 @@ import org.apache.log4j.Logger;
 import org.bson.Document;
 import services.MakeSets.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by satwik on 5/31/17.
@@ -22,7 +19,7 @@ public class ConversionLogic {
     private static final String MALHEUR = "malheur";
     private static final String NETWORK = "network";
     private static final String SIGNATURES = "signatures";
-    private static final String STATSIGNATURES = "statSignatures";
+    private static final String STAT_SIGNATURES = "statSignatures";
     private static final String STATIC = "static";
 
     private static Logger log = Logger.getLogger(ConversionLogic.class);
@@ -34,33 +31,23 @@ public class ConversionLogic {
         switch (feature) {
             case BEHAVIOR:
                 Behavior behavior = MapperUtil.fromObject(innerValue, Behavior.class);
-                Set<String> behaviorPool = BehaviorSet.makeBehaviorSet(behavior);
-//                generatePool.addToPool(behaviorPool);
-                return behaviorPool;
+                return BehaviorSet.makeBehaviorSet(behavior);
             case MALHEUR:
                 // This won't be used in the clustering but will be used as a reference for the cluster results.
                 Malheur malheur = MapperUtil.fromObject(innerValue, Malheur.class);
                 break;
             case NETWORK:
                 Network network = MapperUtil.fromObject(innerValue, Network.class);
-                Set<String> networkPool = NetworkSet.makeNetworkSet(network);
-//                generatePool.addToPool(networkPool);
-                return networkPool;
+                return NetworkSet.makeNetworkSet(network);
             case SIGNATURES:
                 // TODO : Does this work ??
                 Map<String, List<Object>> signatures = MapperUtil.fromObject(innerValue, Map.class);
-                Set<String> signaturesPool = SignatureSet.makeSignatureSet(signatures);
-//                generatePool.addToPool(signaturesPool);
-                return signaturesPool;
-            case STATSIGNATURES:
-                Set<String> statSignPool = StatSignaturesSet.makeStatSignaturesSet(innerValue);
-//                generatePool.addToPool(statSignPool);
-                return statSignPool;
+                return SignatureSet.makeSignatureSet(signatures);
+            case STAT_SIGNATURES:
+                return StatSignaturesSet.makeStatSignaturesSet(innerValue);
             case STATIC:
                 Static staticDomainObject = MapperUtil.fromObject(innerValue, Static.class);
-                Set<String> staticDomainPool = StaticSet.makeStaticSet(staticDomainObject);
-//                generatePool.addToPool(staticDomainPool);
-                return staticDomainPool;
+                return StaticSet.makeStaticSet(staticDomainObject);
             default:
                 log.error("Unknown Feature record");
                 break;
@@ -81,6 +68,23 @@ public class ConversionLogic {
         returnValue.put(key, strings);
 
         return returnValue;
+    }
+
+    public static Set<String> getDoc(String document) {
+
+        JsonNode eachDoc = MapperUtil.fromObject(document, JsonNode.class);
+        MetaObjectValue metaObjectValue = MapperUtil.fromObject(eachDoc, MetaObjectValue.class);
+        JsonNode value;
+        String feature;
+        String key;
+        if (metaObjectValue != null) {
+            value = metaObjectValue.getValue();
+            feature = metaObjectValue.getFeature();
+            key = metaObjectValue.getKey();
+            return featureDecision(feature, value.get(key));
+        } else {
+            return new HashSet<>();
+        }
     }
 
     public static Set<String> getFeaturePool() {
