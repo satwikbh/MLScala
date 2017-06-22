@@ -71,10 +71,4 @@ public class ReadFromMongo {
         log.info("Completed reading all documents from Mongo : " + (System.currentTimeMillis() - startTime));
         return allDocsList;
     }
-
-    public static void main(String[] args) {
-        Map<String, List<String>> allMongoDocs = getAllMongoDocs();
-        System.out.println(allMongoDocs.size());
-    }
-
 }
