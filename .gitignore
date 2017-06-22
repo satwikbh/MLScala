@@ -1,2 +1,8 @@
 *.class
 *.log
+.idea/vcs.xml
+logs/
+metastore_db/tmp/
+src/main/scala/common/config/
+src/test/
+MLScala.iml
