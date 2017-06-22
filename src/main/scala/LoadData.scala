@@ -23,7 +23,8 @@ object LoadData extends App {
   }
 
   def newStart(): Unit = {
-    val startTime = System.nanoTime()
+    log.info("************ Program Started *************")
+    val startTime = System.currentTimeMillis()
     val sc = sparkInvocations
 
     val allMongoDocs = ReadFromMongo.getAllMongoDocs.asScala.map(line => {
@@ -41,20 +42,26 @@ object LoadData extends App {
 
     val sparseMatrix = HelperClass.newGetSparseMatrix(sc, arrayOfBOW)
     println(sparseMatrix.length)
-    val input_data = sparseMatrix.map(line => line.toArray)
-    val model = ClusteringAlgos.smileKMeans(input_data, 10)
+    val inputData = sparseMatrix.map(line => line.toArray)
 
-    println(model.mkString)
+    val inputDataRDD = sc.parallelize(inputData)
+    val clusters = ClusteringAlgos.sparkMllibKmeans(inputDataRDD, 10)
+
+    // Shows the result.
+    log.info("Cluster Centers: ")
+    clusters.foreach(println)
+
+    //    val model = ClusteringAlgos.smileKMeans(input_data, 10)
+    //    println(model.mkString)
 
     //    val inputData = sc.parallelize(sparseMatrix)
     //    val lshBasedClusters = LSHAlgos.mrSqueezeLSH(input_data = inputData, p = 65537, m = 1000, numRows = 1000, numBands = 100, minClusterSize = 2)
     //    println(lshBasedClusters.saveAsTextFile("/home/satwik/Documents/Research/MLScalaMVN/lsh"))
 
-    println(s"Time taken : ${System.nanoTime() - startTime}")
+    log.info("************ Program Ends *************")
+    log.info(s"Time taken : ${System.currentTimeMillis() - startTime}")
     sc.stop()
-
   }
 
   newStart()
-
 }
