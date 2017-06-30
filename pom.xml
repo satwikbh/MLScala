@@ -126,6 +126,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
+        <dependency>
+            <groupId>de.lmu.ifi.dbs.elki</groupId>
+            <artifactId>elki</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+
+
     </dependencies>
 
 </project>

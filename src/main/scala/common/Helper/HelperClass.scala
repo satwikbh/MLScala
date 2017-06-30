@@ -2,6 +2,7 @@ package common.Helper
 
 import org.apache.spark.SparkContext
 import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.mllib.linalg
 import org.apache.spark.rdd.RDD
 import org.bson.Document
 import services.Conversion.ConversionLogic
@@ -47,6 +48,24 @@ object HelperClass extends App {
     matrix
   }
 
+  def getVector(sc: SparkContext, listOfDocs: Array[Array[String]]): Array[linalg.Vector] = {
+    val featurePool = listOfDocs.flatten.distinct
+    val poolLength = featurePool.length
+
+    val broadCastVariable = sc.broadcast(featurePool)
+
+    val matrix = listOfDocs.map(line => {
+      oneHotVectorEncodingInt(line, broadCastVariable.value)
+    })
+
+    val sparseMatrix = matrix.filter(_ != null).map(line => {
+      val arg1 = line.toSeq.map(each => (each, 1.0))
+      val sparseVec = org.apache.spark.mllib.linalg.Vectors.sparse(poolLength, arg1)
+      sparseVec
+    })
+    sparseMatrix
+  }
+
   def newGetSparseMatrix(sc: SparkContext, listOfDocs: Array[Array[String]]): Array[org.apache.spark.mllib.linalg.SparseVector] = {
     val featurePool = listOfDocs.flatten.distinct
     val poolLength = featurePool.length
@@ -69,7 +88,7 @@ object HelperClass extends App {
     * From the feature pool we pick the index where the elements of individual array are picked.
     *
     * @param individualArray Each data point
-    * @param featurePool The pool of all the features present in each data point
+    * @param featurePool     The pool of all the features present in each data point
     * @return
     */
   def oneHotVectorEncodingDouble(individualArray: Array[String], featurePool: Array[String]): Array[Double] = {

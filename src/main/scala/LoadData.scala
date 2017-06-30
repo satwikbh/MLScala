@@ -1,4 +1,4 @@
-import MLAlgos.ClusteringAlgos
+import MLAlgos.DimensionalityReduction
 import common.Helper.HelperClass
 import org.apache.log4j.Logger
 import org.apache.spark.{SparkConf, SparkContext}
@@ -40,23 +40,37 @@ object LoadData extends App {
       something.flatten.distinct
     }).toArray
 
-    val sparseMatrix = HelperClass.newGetSparseMatrix(sc, arrayOfBOW)
+    val sparseMatrix = HelperClass.getVector(sc, arrayOfBOW)
     println(sparseMatrix.length)
-    val inputData = sparseMatrix.map(line => line.toArray)
 
-    val inputDataRDD = sc.parallelize(inputData)
-    val clusters = ClusteringAlgos.sparkMllibKmeans(inputDataRDD, 10)
+    val inputDataRDD = sc.parallelize(sparseMatrix)
+    val projectedVector = DimensionalityReduction.mllibPCA(inputDataRDD)
 
-    // Shows the result.
-    log.info("Cluster Centers: ")
-    clusters.foreach(println)
+    projectedVector.foreach(line => {
+      println(line.toArray.mkString)
+    })
 
-    //    val model = ClusteringAlgos.smileKMeans(input_data, 10)
-    //    println(model.mkString)
+    /*
+      Breeze SVD Implementation
+     */
 
-    //    val inputData = sc.parallelize(sparseMatrix)
-    //    val lshBasedClusters = LSHAlgos.mrSqueezeLSH(input_data = inputData, p = 65537, m = 1000, numRows = 1000, numBands = 100, minClusterSize = 2)
-    //    println(lshBasedClusters.saveAsTextFile("/home/satwik/Documents/Research/MLScalaMVN/lsh"))
+
+    /* Spark MLLib KMeans clustering
+        val clusters = ClusteringAlgos.sparkMllibKmeans(inputDataRDD, 10)
+        log.info("Cluster Centers: ")
+        clusters.foreach(println)
+     */
+
+    /* Smile KMeans Clustering
+        val model = ClusteringAlgos.smileKMeans(input_data, 10)
+        println(model.mkString)
+     */
+
+    /* MrSqueeze LSH Implementation
+        val inputData = sc.parallelize(sparseMatrix)
+        val lshBasedClusters = LSHAlgos.mrSqueezeLSH(input_data = inputData, p = 65537, m = 1000, numRows = 1000, numBands = 100, minClusterSize = 2)
+        println(lshBasedClusters.saveAsTextFile("/home/satwik/Documents/Research/MLScalaMVN/lsh"))
+     */
 
     log.info("************ Program Ends *************")
     log.info(s"Time taken : ${System.currentTimeMillis() - startTime}")
