@@ -1,2 +1,14 @@
 *.class
 *.log
+.idea/
+classes/
+logs/
+metastore_db/
+spark-warehouse/
+target/
+derby.log
+MLScala.iml
+src/main/resources/META-INF/
+src/main/scala/common/config/
+src/main/scala/del.sc
+src/test/
